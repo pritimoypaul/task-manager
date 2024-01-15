@@ -9,15 +9,29 @@ import {
   ScrollView,
 } from "react-native";
 
+import uuid from "react-native-uuid";
+
 export default function App() {
   const [input, setInput] = useState("");
   const [tasks, setTasks] = useState([
     {
-      id: 1,
+      id: uuid.v4(),
       isDone: false,
       text: "sidfji odis ji",
     },
   ]);
+
+  const setNewState = (id) => {
+    const newState = tasks.map((obj) =>
+      obj.id === id ? { ...obj, isDone: !obj.isDone } : obj
+    );
+    setTasks(newState);
+  };
+
+  const deleteTask = (id) => {
+    const modTask = tasks.filter((item) => item.id != id);
+    setTasks(modTask);
+  };
   return (
     <View className="pt-[50] bg-[#F8FAFF] ml-[24] mr-[24] flex-1">
       <View className="flex-row justify-between items-center">
@@ -49,12 +63,13 @@ export default function App() {
             setTasks([
               ...tasks,
               {
-                id: Math.random(),
+                id: uuid.v4(),
                 idDone: false,
                 text: input,
               },
             ]);
             setInput("");
+            console.log(tasks);
           }}
         >
           <View className="bg-[#0067FF] w-[55] h-[55] rounded-full flex-row justify-center items-center">
@@ -71,27 +86,41 @@ export default function App() {
         <View className="mt-[25] flex-1">
           {/* real data */}
           {tasks?.map((task) => (
-            <View
+            <TouchableOpacity
               key={task?.id}
-              className="bg-white w-full flex-row justify-start items-center rounded-md h-[58]"
+              onPress={() => {
+                console.log(`Pressed on task ${task.id}`);
+                setNewState(task?.id);
+              }}
             >
-              <Image
-                source={
-                  task?.isDone
-                    ? require("./assets/images/icons/task_done.png")
-                    : require("./assets/images/icons/task.png")
-                }
-              />
-              <Text
-                style={{
-                  textDecorationLine: `${
-                    task?.isDone ? "line-through" : "none"
-                  }`,
-                }}
-              >
-                {task?.text}
-              </Text>
-            </View>
+              <View className="bg-white w-full flex-row justify-start items-center rounded-md h-[58]">
+                <Image
+                  source={
+                    task?.isDone
+                      ? require("./assets/images/icons/task_done.png")
+                      : require("./assets/images/icons/task.png")
+                  }
+                />
+                <Text
+                  style={{
+                    textDecorationLine: `${
+                      task?.isDone ? "line-through" : "none"
+                    }`,
+                  }}
+                >
+                  {task?.text}
+                </Text>
+                <View className="flex-1 flex-row justify-end items-center">
+                  <TouchableOpacity
+                    onPress={() => {
+                      deleteTask(task.id);
+                    }}
+                  >
+                    <Text className="text-red-500 font-bold">X</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
           ))}
 
           {/* for demo */}
