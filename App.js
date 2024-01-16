@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -10,6 +10,8 @@ import {
 } from "react-native";
 
 import uuid from "react-native-uuid";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
   const [input, setInput] = useState("");
@@ -32,8 +34,36 @@ export default function App() {
     const modTask = tasks.filter((item) => item.id != id);
     setTasks(modTask);
   };
+
+  const storeData = async () => {
+    try {
+      const jsonValue = JSON.stringify(tasks);
+      await AsyncStorage.setItem("pro-task-list", jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("pro-task-list");
+      const parsedValue = jsonValue != null ? JSON.parse(jsonValue) : null;
+      setTasks(parsedValue);
+    } catch (e) {
+      // error reading value
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  useEffect(() => {
+    storeData();
+  }, [tasks]);
+
   return (
-    <View className="pt-[50] bg-[#F8FAFF] ml-[24] mr-[24] flex-1">
+    <View className="pt-[50] bg-[#F8FAFF] pl-[24] pr-[24] flex-1">
       <View className="flex-row justify-between items-center">
         <Image source={require("./assets/images/icons/menu.png")} />
         <Image source={require("./assets/images/icons/notification.png")} />
@@ -69,7 +99,6 @@ export default function App() {
               },
             ]);
             setInput("");
-            console.log(tasks);
           }}
         >
           <View className="bg-[#0067FF] w-[55] h-[55] rounded-full flex-row justify-center items-center">
@@ -89,7 +118,6 @@ export default function App() {
             <TouchableOpacity
               key={task?.id}
               onPress={() => {
-                console.log(`Pressed on task ${task.id}`);
                 setNewState(task?.id);
               }}
             >
@@ -102,6 +130,7 @@ export default function App() {
                   }
                 />
                 <Text
+                  className="w-3/4"
                   style={{
                     textDecorationLine: `${
                       task?.isDone ? "line-through" : "none"
