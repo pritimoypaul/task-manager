@@ -15,13 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
   const [input, setInput] = useState("");
-  const [tasks, setTasks] = useState([
-    {
-      id: uuid.v4(),
-      isDone: false,
-      text: "sidfji odis ji",
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
 
   const setNewState = (id) => {
     const newState = tasks.map((obj) =>
@@ -47,8 +41,8 @@ export default function App() {
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem("pro-task-list");
-      const parsedValue = jsonValue != null ? JSON.parse(jsonValue) : null;
-      setTasks(parsedValue);
+      const savedTasks = jsonValue != null ? JSON.parse(jsonValue) : null;
+      setTasks(savedTasks);
     } catch (e) {
       // error reading value
     }
